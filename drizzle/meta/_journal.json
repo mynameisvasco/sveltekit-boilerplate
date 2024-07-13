@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1720865314674,
+      "tag": "0000_aromatic_red_wolf",
+      "breakpoints": true
+    }
+  ]
+}
