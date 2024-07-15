@@ -1,10 +1,17 @@
-import type { Role } from './roles';
+import { TeamRole, type Role } from './roles';
 import { hash, verify } from '@node-rs/argon2';
 import { subMinutes } from 'date-fns';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
+import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { generateIdFromEntropySize } from 'lucia';
 import { db } from '../database/adapter';
-import { userTable, verificationCodesTable, sessionTable } from '../database/schema';
+import {
+	userTable,
+	teamTable,
+	verificationCodesTable,
+	sessionTable,
+	teamMemberTable
+} from '../database/schema';
 
 class AuthRepository {
 	async findUsers(page: number, limit: number = 20) {
@@ -79,26 +86,86 @@ class AuthRepository {
 		return { data: sessions, count: sessionsCount };
 	}
 
-	async findRoutesByRole(role: string) {
-		if (role === 'admin') {
-			return ['/dashboard/home', '/dashboard/users', '/dashboard/settings'];
+	async findTeamsByUserId(userId: number) {
+		const memberships = await db.query.teamMemberTable.findMany({
+			where: eq(teamMemberTable.userId, userId),
+			with: { team: true }
+		});
+
+		return {
+			data: memberships.flatMap((membership) => membership.team),
+			count: memberships.length
+		};
+	}
+
+	async findTeamById(teamId: number) {
+		const team = await db.query.teamTable.findFirst({ where: eq(teamTable.id, teamId) });
+
+		if (!team) {
+			return;
 		}
 
-		return ['/dashboard/home', '/dashboard/settings'];
+		return team;
+	}
+
+	async isTeamMember(teamId: number, userId: number) {
+		const teamMember = await db.query.teamMemberTable.findFirst({
+			where: and(eq(teamMemberTable.userId, userId), eq(teamMemberTable.teamId, teamId)),
+			columns: { teamId: true }
+		});
+
+		return !!teamMember;
+	}
+
+	async changeActiveTeam(teamId: number, userId: number) {
+		await db.update(userTable).set({ activeTeamId: teamId }).where(eq(userTable.id, userId));
 	}
 
 	async createUser(email: string, password: string, fullName: string) {
 		const hashedPassword = await hash(password);
-		const user = await db
-			.insert(userTable)
-			.values({
-				email,
-				password: hashedPassword,
-				fullName
-			})
-			.returning();
 
-		return user[0];
+		return await db.transaction(async (trx) => {
+			const [{ id: teamId }] = await trx
+				.insert(teamTable)
+				.values({ name: `${fullName}'s Team` })
+				.returning();
+
+			const [user] = await trx
+				.insert(userTable)
+				.values({
+					email,
+					password: hashedPassword,
+					fullName,
+					activeTeamId: teamId
+				})
+				.returning();
+
+			await trx.insert(teamMemberTable).values({
+				teamId: teamId,
+				userId: user.id,
+				role: TeamRole.Admin
+			});
+
+			return user;
+		});
+	}
+
+	async createTeam(name: string, userId: number) {
+		return await db.transaction(async (trx) => {
+			const [team] = await db.insert(teamTable).values({ name: name }).returning();
+			await trx.insert(teamMemberTable).values({ teamId: team.id, userId, role: TeamRole.Admin });
+			return team;
+		});
+	}
+
+	async addTeamMember(teamId: number, userId: number, role: TeamRole) {
+		await db.insert(teamMemberTable).values({ teamId, userId, role });
+	}
+
+	async removeTeamMember(teamId: number, userId: number) {
+		await db
+			.delete(teamMemberTable)
+			.where(and(eq(teamMemberTable.teamId, teamId), eq(teamMemberTable.userId, userId)));
 	}
 
 	async createVerificationCode(userId: number, validUntil: Date) {

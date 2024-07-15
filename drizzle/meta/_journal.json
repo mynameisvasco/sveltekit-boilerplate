@@ -8,6 +8,41 @@
       "when": 1720865314674,
       "tag": "0000_aromatic_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1720873504077,
+      "tag": "0001_cuddly_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720876728691,
+      "tag": "0002_tiny_power_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1720888364410,
+      "tag": "0003_slimy_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1720888847275,
+      "tag": "0004_next_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1720888875577,
+      "tag": "0005_married_veda",
+      "breakpoints": true
     }
   ]
 }

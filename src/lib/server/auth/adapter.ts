@@ -13,7 +13,8 @@ export const lucia = new Lucia(adapter, {
 			fullName: attributes.fullName,
 			email: attributes.email,
 			isVerified: attributes.isVerified,
-			role: attributes.role
+			role: attributes.role,
+			activeTeamId: attributes.activeTeamId
 		};
 	},
 	getSessionAttributes: (attributes) => {
@@ -40,6 +41,7 @@ declare module 'lucia' {
 			email: string;
 			isVerified: boolean;
 			role: Role;
+			activeTeamId: number;
 		};
 		DatabaseSessionAttributes: {
 			ip: string;

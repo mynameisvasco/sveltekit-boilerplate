@@ -24,8 +24,9 @@
 
 <form
 	id="destroy-session-form"
-	action="/dashboard/users/{data.user.id}/session?/destroy"
+	action="/admin/users/{data.user.id}/session?/destroy"
 	method="post"
+	class="hidden"
 	use:enhance={formHandler}
 >
 	<input type="hidden" name="sessionId" id="sessionId" bind:value={deleteSessionId} />
@@ -47,7 +48,7 @@
 			{#if !data.user.isVerified}
 				<DropdownMenu.Item>
 					<form
-						action="/dashboard/users/{data.user.id}?/verifyEmail"
+						action="/admin/users/{data.user.id}?/verifyEmail"
 						method="post"
 						use:enhance={formHandler}
 					>
@@ -56,11 +57,7 @@
 				</DropdownMenu.Item>
 			{/if}
 			<DropdownMenu.Item class="text-destructive">
-				<form
-					action="/dashboard/users/{data.user.id}?/destroy"
-					method="post"
-					use:enhance={formHandler}
-				>
+				<form action="/admin/users/{data.user.id}?/destroy" method="post" use:enhance={formHandler}>
 					<button type="submit">Delete</button>
 				</form>
 			</DropdownMenu.Item>
@@ -93,7 +90,7 @@
 	<Card.Content class="flex items-center gap-6">
 		<form
 			id="update-user-form"
-			action="/dashboard/users/{data.user.id}?/update"
+			action="/admin/users/{data.user.id}?/update"
 			method="post"
 			class="grid w-full max-w-xl items-start gap-4"
 			use:enhance={formHandler}

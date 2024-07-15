@@ -1,11 +1,9 @@
 import { SECRET_DATABASE_URL } from '$env/static/private';
 import {
-	permissionRelations,
-	permissionTable,
 	sessionTable,
-	userPermissionRelations,
-	userPermissionTable,
-	userRelations,
+	teamMemberRelations,
+	teamMemberTable,
+	teamTable,
 	userTable,
 	verificationCodesTable
 } from './schema';
@@ -18,11 +16,9 @@ export const db = drizzle(client, {
 	schema: {
 		userTable,
 		sessionTable,
-		permissionTable,
-		userPermissionTable,
 		verificationCodesTable,
-		userRelations,
-		permissionRelations,
-		userPermissionRelations
+		teamTable,
+		teamMemberTable,
+		teamMemberRelations
 	}
 });

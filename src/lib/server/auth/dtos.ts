@@ -27,6 +27,6 @@ export const updateCredenitlasDto = z.object({
 	role: z.enum([Role.Admin, Role.User])
 });
 
-export type RegisterDto = z.infer<typeof registerDto>;
-export type LoginDto = z.infer<typeof loginDto>;
-export type VerifyEmailDto = z.infer<typeof verifyEmailDto>;
+export const createTeamDto = z.object({
+	name: z.string().min(2)
+});

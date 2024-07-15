@@ -1,36 +1,53 @@
 import { lucia } from '$lib/server/auth/adapter';
+import { authRepository } from '$lib/server/auth/repository';
+import { Role } from '$lib/server/auth/roles';
 import { sendEmailWorker } from '$lib/server/email/workers';
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 const authHandler: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
 
-	if (!sessionId) {
-		event.locals.user = null;
-		event.locals.session = null;
-		return resolve(event);
+	if (!sessionId && !event.url.pathname.startsWith('/auth')) {
+		return redirect(307, '/auth/login');
 	}
 
-	const { session, user } = await lucia.validateSession(sessionId);
-
-	if (session && session.fresh) {
-		const sessionCookie = lucia.createSessionCookie(session.id);
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: '.',
-			...sessionCookie.attributes
-		});
-	}
-	if (!session) {
-		const sessionCookie = lucia.createBlankSessionCookie();
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: '.',
-			...sessionCookie.attributes
-		});
+	if (!sessionId && event.url.pathname === '/auth/verify-email') {
+		return redirect(307, '/auth/login');
 	}
 
-	event.locals.user = user;
-	event.locals.session = session;
+	if (sessionId) {
+		const { session, user } = await lucia.validateSession(sessionId);
+
+		if (session && session.fresh) {
+			const sessionCookie = lucia.createSessionCookie(session.id);
+			event.cookies.set(sessionCookie.name, sessionCookie.value, {
+				path: '.',
+				...sessionCookie.attributes
+			});
+		}
+
+		if (!session) {
+			const sessionCookie = lucia.createBlankSessionCookie();
+			event.cookies.set(sessionCookie.name, sessionCookie.value, {
+				path: '.',
+				...sessionCookie.attributes
+			});
+		}
+
+		event.locals.team = (await authRepository.findTeamById(user!.activeTeamId)) ?? null;
+		event.locals.user = user;
+		event.locals.session = session;
+	}
+
+	if (sessionId && event.url.pathname !== '/auth/verify-email' && !event.locals.user?.isVerified) {
+		return redirect(307, '/auth/verify-email');
+	}
+
+	if (event.url.pathname.startsWith('/admin') && event.locals.user?.role !== Role.Admin) {
+		return redirect(307, '/home');
+	}
+
 	return resolve(event);
 };
 

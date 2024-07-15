@@ -17,7 +17,7 @@ const verify = async (event: RequestEvent) => {
 		return fail(400, { errors: { code: ['Verification code is expired'] } });
 	}
 
-	return redirect(307, '/dashboard/home');
+	return redirect(307, '/home');
 };
 
 const resend = async (event: RequestEvent) => {

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
@@ -13,7 +12,7 @@
 	import { enhance } from '$app/forms';
 	import { capitalize, formHandler } from '$lib/utils';
 
-	let { form } = $props();
+	let { data, form } = $props();
 	let selected = $state<any[]>([]);
 	let isCreateDrawerOpen = $state(false);
 </script>
@@ -23,7 +22,6 @@
 		<h3>Users</h3>
 		<span class="text-sm text-muted-foreground">List of all users registered in the system</span>
 	</div>
-
 	{#if selected.length === 0}
 		<Button class="min-w-[110px]" onclick={() => (isCreateDrawerOpen = true)}>Create</Button>
 	{:else}
@@ -33,7 +31,7 @@
 	{/if}
 </div>
 
-<CrudTable headers={['User', 'Role', 'Status', 'Date', '']} body={$page.data.users} bind:selected>
+<CrudTable headers={['User', 'Role', 'Status', 'Date', '']} body={data.users} bind:selected>
 	{#snippet row(user: any)}
 		<Table.Cell>
 			<div class="font-medium">{user.fullName}</div>
@@ -51,7 +49,7 @@
 			{formatDate(user.createdAt, 'dd/MM/yyyy')}
 		</Table.Cell>
 		<Table.Cell>
-			<a href="/dashboard/users/{user.id}">
+			<a href="/admin/users/{user.id}">
 				<SquareArrowRightIcon
 					class="size-5 text-muted-foreground transition-all hover:text-foreground"
 				/>
@@ -66,7 +64,7 @@
 	bind:open={isCreateDrawerOpen}
 >
 	<form
-		action="/dashboard/users?/create"
+		action="/admin/users?/create"
 		method="post"
 		class="grid items-start gap-4"
 		use:enhance={formHandler}

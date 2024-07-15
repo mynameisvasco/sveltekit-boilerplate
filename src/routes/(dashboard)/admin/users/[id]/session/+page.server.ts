@@ -4,10 +4,6 @@ import { Role } from '$lib/server/auth/roles.js';
 import { fail, redirect, type RequestEvent } from '@sveltejs/kit';
 
 const destroy = async (event: RequestEvent) => {
-	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
-	}
-
 	const { data, error } = await deleteSessionDto.safeParseAsync(event.locals.body);
 
 	if (error) {

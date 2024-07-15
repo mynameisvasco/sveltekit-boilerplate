@@ -108,7 +108,7 @@
 				perPage={itemsPerPage}
 				let:pages
 				let:currentPage
-				page={Number($page.url.searchParams.get('page') ?? '0')}
+				page={Number($page.url.searchParams.get('page') ?? '1')}
 			>
 				<Pagination.Content>
 					<Pagination.Item>

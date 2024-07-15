@@ -6,6 +6,8 @@
 	import UsersIcon from '~icons/solar/users-group-rounded-outline';
 	import SettingsIcon from '~icons/solar/settings-minimalistic-outline';
 	import BoltIcon from '~icons/solar/bolt-bold-duotone';
+	import TeamIcon from '~icons/solar/users-group-two-rounded-outline';
+
 	import { page } from '$app/stores';
 </script>
 
@@ -30,15 +32,19 @@
 	<Sheet.Content side="left" class="sm:max-w-xs">
 		<nav class="grid gap-6 text-lg font-medium">
 			<a
-				href="/dashboard/home"
+				href="/home"
 				class="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
 			>
 				<BoltIcon class="size-5" />
 				<span class="sr-only">Acme Inc</span>
 			</a>
-			{@render navItem('Home', '/dashboard/home', HomeIcon)}
-			{@render navItem('Users', '/dashboard/users', UsersIcon)}
-			{@render navItem('Settings', '/dashboard/settings', SettingsIcon)}
+			{@render navItem('Home', '/home', HomeIcon)}
+			{@render navItem('Teams', '/teams', TeamIcon)}
+			{#if $page.data.user?.role === 'admin'}
+				{@render navItem('Users', '/admin/users', UsersIcon)}
+			{/if}
+
+			{@render navItem('Settings', '/settings', SettingsIcon)}
 		</nav>
 	</Sheet.Content>
 </Sheet.Root>

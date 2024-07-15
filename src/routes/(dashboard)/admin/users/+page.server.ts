@@ -4,10 +4,6 @@ import { Role } from '$lib/server/auth/roles.js';
 import { error, fail, redirect, type RequestEvent } from '@sveltejs/kit';
 
 const create = async (event: RequestEvent) => {
-	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
-	}
-
 	const { data, error } = await registerDto.safeParseAsync(event.locals.body);
 
 	if (error) {
@@ -24,10 +20,6 @@ const create = async (event: RequestEvent) => {
 };
 
 export const load = async (event) => {
-	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
-	}
-
 	const page = Number(event.url.searchParams.get('page'));
 	const limit = Number(event.url.searchParams.get('limit'));
 

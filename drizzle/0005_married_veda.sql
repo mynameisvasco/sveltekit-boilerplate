@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "active_team_id" SET NOT NULL;

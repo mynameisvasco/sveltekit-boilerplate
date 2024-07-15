@@ -4,6 +4,7 @@
 	import UsersIcon from '~icons/solar/users-group-rounded-outline';
 	import SettingsIcon from '~icons/solar/settings-minimalistic-outline';
 	import BoltIcon from '~icons/solar/bolt-bold-duotone';
+	import TeamIcon from '~icons/solar/users-group-two-rounded-outline';
 	import { page } from '$app/stores';
 </script>
 
@@ -28,14 +29,18 @@
 <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-card sm:flex">
 	<nav class="flex flex-col items-center gap-4 px-2 sm:py-5">
 		<a
-			href="/dashboard/home"
+			href="/home"
 			class="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
 		>
 			<BoltIcon class="size-5" />
 			<span class="sr-only">Acme Inc</span>
 		</a>
-		{@render navItem('Home', '/dashboard/home', HomeIcon)}
-		{@render navItem('Users', '/dashboard/users', UsersIcon)}
-		{@render navItem('Settings', '/dashboard/settings', SettingsIcon)}
+		{@render navItem('Home', '/home', HomeIcon)}
+		{@render navItem('Teams', '/teams', TeamIcon)}
+		{#if $page.data.user?.role === 'admin'}
+			{@render navItem('Users', '/admin/users', UsersIcon)}
+		{/if}
+
+		{@render navItem('Settings', '/settings', SettingsIcon)}
 	</nav>
 </aside>

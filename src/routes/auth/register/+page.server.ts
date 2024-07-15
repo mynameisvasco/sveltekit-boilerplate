@@ -46,7 +46,7 @@ async function register(event: RequestEvent) {
 		return redirect(307, '/auth/verify-email');
 	}
 
-	return redirect(307, '/dashboard/home');
+	return redirect(307, '/home');
 }
 
 export const actions = { default: register };

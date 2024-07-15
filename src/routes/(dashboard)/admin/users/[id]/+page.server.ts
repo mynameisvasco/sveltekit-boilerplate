@@ -4,10 +4,6 @@ import { Role } from '$lib/server/auth/roles.js';
 import { fail, redirect, type RequestEvent } from '@sveltejs/kit';
 
 const destroy = async (event: RequestEvent) => {
-	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
-	}
-
 	await authRepository.deleteUser(Number(event.params.id));
 
 	return {
@@ -17,7 +13,7 @@ const destroy = async (event: RequestEvent) => {
 
 const update = async (event: RequestEvent) => {
 	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
+		return redirect(307, '/home');
 	}
 
 	const { data, error } = await updateCredenitlasDto.safeParseAsync(event.locals.body);
@@ -35,7 +31,7 @@ const update = async (event: RequestEvent) => {
 	);
 
 	if (!user) {
-		return redirect(307, '/dashboard/users');
+		return redirect(307, '/users');
 	}
 
 	return {
@@ -52,14 +48,10 @@ const verifyEmail = async (event: RequestEvent) => {
 };
 
 export const load = async (event) => {
-	if (event.locals.user?.role !== Role.Admin) {
-		return redirect(307, '/dashboard/home');
-	}
-
 	const user = await authRepository.findUserById(Number(event.params.id));
 
 	if (!user) {
-		return redirect(307, '/dashboard/users');
+		return redirect(307, '/users');
 	}
 
 	return {
