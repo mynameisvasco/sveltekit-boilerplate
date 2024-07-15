@@ -1,4 +1,5 @@
 // See https://kit.svelte.dev/docs/types#app
+import type { TeamRole } from '$lib/server/auth/roles';
 import type { Session, User } from 'lucia';
 
 // for information about these interfaces
@@ -9,6 +10,7 @@ declare global {
 			user: User | null;
 			session: Session | null;
 			team: { id: number; name: string } | null;
+			teamMembership: { role: string } | null;
 			body?: any | null | undefined;
 		}
 		// interface PageData {}

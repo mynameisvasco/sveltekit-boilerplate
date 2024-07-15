@@ -36,6 +36,8 @@ const authHandler: Handle = async ({ event, resolve }) => {
 		}
 
 		event.locals.team = (await authRepository.findTeamById(user!.activeTeamId)) ?? null;
+		event.locals.teamMembership =
+			(await authRepository.findTeamMemberByUserId(user!.activeTeamId, user!.id)) ?? null;
 		event.locals.user = user;
 		event.locals.session = session;
 	}

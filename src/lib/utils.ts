@@ -88,8 +88,12 @@ export const formHandler: SubmitFunction = ({ formElement, submitter }) => {
 				toast.success(result.data.message);
 			}
 		} else if (result.type === 'error') {
-			if (result.error?.message) {
-				toast.error(result.error?.message);
+			if (result.error?.errorMessage) {
+				toast.error(result.error?.errorMessage);
+			}
+		} else if (result.type === 'failure') {
+			if (result.data?.errorMessage) {
+				toast.error(result.data?.errorMessage);
 			}
 		}
 	};

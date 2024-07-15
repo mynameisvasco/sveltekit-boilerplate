@@ -204,8 +204,10 @@
 						onclick={(e) => {
 							e.preventDefault();
 							deleteSessionId = session.id;
-							(document.getElementById('destroy-session-form') as HTMLFormElement)?.dispatchEvent(
-								new SubmitEvent('submit')
+							setTimeout(() =>
+								(document.getElementById('destroy-session-form') as HTMLFormElement)?.dispatchEvent(
+									new SubmitEvent('submit')
+								)
 							);
 						}}
 					>

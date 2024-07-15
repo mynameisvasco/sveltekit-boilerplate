@@ -7,6 +7,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import SquareArrowRightIcon from '~icons/solar/square-arrow-right-up-outline';
 	import { formHandler } from '$lib/utils';
 
 	let { data, form } = $props();
@@ -30,13 +31,18 @@
 					alt={team.name}
 					class="size-6 rounded-md"
 				/>
-				<span>
-					{team.name}
-				</span>
+				{team.name}
 				{#if data.team?.id === team.id}
 					<Badge variant="secondary">Current</Badge>
 				{/if}
 			</div>
+		</Table.Cell>
+		<Table.Cell>
+			<a href="/teams/{team.id}">
+				<SquareArrowRightIcon
+					class="size-5 text-muted-foreground transition-all hover:text-foreground"
+				/>
+			</a>
 		</Table.Cell>
 	{/snippet}
 </CrudTable>
