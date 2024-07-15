@@ -1,5 +1,4 @@
-import { createTeamDto } from '$lib/server/auth/dtos.js';
-import { authRepository } from '$lib/server/auth/repository.js';
+import { teamRepository } from '$lib/server/teams/repository.js';
 import { fail, type RequestEvent } from '@sveltejs/kit';
 
 const create = async (event: RequestEvent) => {
@@ -9,7 +8,7 @@ const create = async (event: RequestEvent) => {
 		return fail(400, { errors: error.flatten().fieldErrors });
 	}
 
-	await authRepository.createTeam(data.name, event.locals.user!.id);
+	await teamRepository.createTeam(data.name, event.locals.user!.id);
 
 	return {
 		message: 'Team has been created'

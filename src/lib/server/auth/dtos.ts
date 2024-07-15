@@ -1,4 +1,4 @@
-import { Role, TeamRole } from './roles';
+import { Role } from './roles';
 import { z } from 'zod';
 
 export const loginDto = z.object({
@@ -25,21 +25,4 @@ export const updateCredenitlasDto = z.object({
 	fullName: z.string().min(2),
 	password: z.string().optional().nullable(),
 	role: z.enum([Role.Admin, Role.User])
-});
-
-export const updateTeamDto = z.object({
-	name: z.string().min(2)
-});
-
-export const createTeamDto = z.object({
-	name: z.string().min(2)
-});
-
-export const removeTeamMemberDto = z.object({
-	userId: z.coerce.number().min(1)
-});
-
-export const addTeamMemberDto = z.object({
-	email: z.string().email(),
-	role: z.enum([TeamRole.Admin, TeamRole.Member])
 });

@@ -1,8 +1,7 @@
-import { TeamRole, type Role } from './roles';
+import { type Role } from './roles';
 import { hash, verify } from '@node-rs/argon2';
 import { subMinutes } from 'date-fns';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
-import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { generateIdFromEntropySize } from 'lucia';
 import { db } from '../database/adapter';
 import {
@@ -12,6 +11,7 @@ import {
 	sessionTable,
 	teamMemberTable
 } from '../database/schema';
+import { TeamRole } from '../teams/roles';
 
 class AuthRepository {
 	async findUsers(page: number, limit: number = 20) {
@@ -86,92 +86,6 @@ class AuthRepository {
 		return { data: sessions, count: sessionsCount };
 	}
 
-	async findTeamsByUserId(userId: number) {
-		const memberships = await db.query.teamMemberTable.findMany({
-			where: eq(teamMemberTable.userId, userId),
-			with: { team: true }
-		});
-
-		return {
-			data: memberships.flatMap((membership) => membership.team),
-			count: memberships.length
-		};
-	}
-
-	async findTeamById(teamId: number) {
-		const team = await db.query.teamTable.findFirst({ where: eq(teamTable.id, teamId) });
-
-		if (!team) {
-			return;
-		}
-
-		return team;
-	}
-
-	async findTeamMemberByUserId(teamId: number, userId: number) {
-		return db.query.teamMemberTable.findFirst({
-			where: and(eq(teamMemberTable.userId, userId), eq(teamMemberTable.teamId, teamId))
-		});
-	}
-
-	async isTeamMember(teamId: number, userId: number) {
-		const teamMember = await db.query.teamMemberTable.findFirst({
-			where: and(eq(teamMemberTable.userId, userId), eq(teamMemberTable.teamId, teamId)),
-			columns: { teamId: true }
-		});
-
-		return !!teamMember;
-	}
-
-	async updateTeamMember(teamId: number, userId: number, role: TeamRole) {
-		await db
-			.update(teamMemberTable)
-			.set({ role })
-			.where(and(eq(teamMemberTable.teamId, teamId), eq(teamMemberTable.userId, userId)));
-	}
-
-	async countTeamMembers(teamId: number, role?: TeamRole) {
-		if (!role) {
-			const [{ count: membersCount }] = await db
-				.select({ count: count() })
-				.from(teamMemberTable)
-				.where(eq(teamMemberTable.teamId, teamId));
-			return membersCount;
-		}
-
-		const [{ count: membersCount }] = await db
-			.select({ count: count() })
-			.from(teamMemberTable)
-			.where(and(eq(teamMemberTable.teamId, teamId), eq(teamMemberTable.role, role)));
-
-		return membersCount;
-	}
-
-	async findTeamMembers(teamId: number, page: number, limit: number = 20) {
-		const members = await db.query.teamMemberTable.findMany({
-			where: eq(teamMemberTable.teamId, teamId),
-			offset: limit * (page - 1),
-			orderBy: [desc(teamMemberTable.userId)],
-			with: { user: true }
-		});
-
-		return {
-			data: members.map((member) => ({
-				...member.user,
-				joinedAt: member.createdAt,
-				teamRole: member.role
-			})),
-			count: await db
-				.select({ count: count() })
-				.from(teamMemberTable)
-				.where(eq(teamMemberTable.teamId, teamId))
-		};
-	}
-
-	async changeActiveTeam(teamId: number, userId: number) {
-		await db.update(userTable).set({ activeTeamId: teamId }).where(eq(userTable.id, userId));
-	}
-
 	async createUser(email: string, password: string, fullName: string) {
 		const hashedPassword = await hash(password);
 
@@ -199,24 +113,6 @@ class AuthRepository {
 
 			return user;
 		});
-	}
-
-	async createTeam(name: string, userId: number) {
-		return await db.transaction(async (trx) => {
-			const [team] = await db.insert(teamTable).values({ name: name }).returning();
-			await trx.insert(teamMemberTable).values({ teamId: team.id, userId, role: TeamRole.Admin });
-			return team;
-		});
-	}
-
-	async addTeamMember(teamId: number, userId: number, role: TeamRole) {
-		await db.insert(teamMemberTable).values({ teamId, userId, role });
-	}
-
-	async removeTeamMember(teamId: number, userId: number) {
-		await db
-			.delete(teamMemberTable)
-			.where(and(eq(teamMemberTable.teamId, teamId), eq(teamMemberTable.userId, userId)));
 	}
 
 	async createVerificationCode(userId: number, validUntil: Date) {
@@ -266,10 +162,6 @@ class AuthRepository {
 			.returning();
 
 		return user[0];
-	}
-
-	async updateTeam(id: number, name: string) {
-		await db.update(teamTable).set({ name }).where(eq(teamTable.id, id));
 	}
 
 	async verifyEmail(id: number, code: string) {
