@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { Role, TeamRole } from '../auth/roles';
+import { Role } from '../auth/roles';
+import { TeamRole } from '../teams/roles';
 
 export const userTable = pgTable('users', {
 	id: serial('id').primaryKey(),
