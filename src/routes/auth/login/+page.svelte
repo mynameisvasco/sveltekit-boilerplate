@@ -45,10 +45,22 @@
 				</div>
 
 				<Button type="submit">Sign In</Button>
-				<span class="py-2 text-center text-sm">
-					Don't have an account <a href="/auth/register" class="text-primary">Sign Up</a>
-				</span>
 			</div>
 		</form>
+		<div class="relative">
+			<div class="absolute inset-0 flex items-center" aria-hidden="true">
+				<div class="w-full border-t"></div>
+			</div>
+			<div class="relative flex justify-center text-sm font-medium leading-6">
+				<span class="bg-background px-6 text-muted">Or continue with</span>
+			</div>
+		</div>
+		<div class="flex flex-col gap-2">
+			<Button variant="outline" href="/auth/oauth?provider=google">Sign via Google</Button>
+			<Button variant="outline" href="/auth/oauth?provider=apple">Sign via Apple</Button>
+		</div>
 	</div>
+	<span class="py-2 text-center text-sm">
+		Don't have an account <a href="/auth/register" class="text-primary">Sign Up</a>
+	</span>
 </div>

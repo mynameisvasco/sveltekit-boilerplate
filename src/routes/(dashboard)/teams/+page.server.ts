@@ -1,3 +1,4 @@
+import { createTeamDto } from '$lib/server/teams/dtos.js';
 import { teamRepository } from '$lib/server/teams/repository.js';
 import { fail, type RequestEvent } from '@sveltejs/kit';
 

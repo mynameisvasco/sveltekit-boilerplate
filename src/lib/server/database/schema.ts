@@ -1,5 +1,13 @@
 import { relations } from 'drizzle-orm';
-import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	boolean,
+	integer,
+	pgTable,
+	primaryKey,
+	serial,
+	text,
+	timestamp
+} from 'drizzle-orm/pg-core';
 import { Role } from '../auth/roles';
 import { TeamRole } from '../teams/roles';
 
@@ -18,22 +26,43 @@ export const userTable = pgTable('users', {
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow()
 });
 
+export const oauthConnectionsTable = pgTable(
+	'oauth_connections',
+	{
+		userId: integer('user_id')
+			.notNull()
+			.references(() => userTable.id, { onDelete: 'cascade' }),
+		email: text('email').notNull(),
+		providerUserId: text('provider_user_id').notNull(),
+		provider: text('provider').notNull()
+	},
+	(table) => ({
+		pk: primaryKey({ columns: [table.providerUserId, table.userId] })
+	})
+);
+
 export const teamTable = pgTable('teams', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow()
 });
 
-export const teamMemberTable = pgTable('team_members', {
-	teamId: integer('team_id')
-		.notNull()
-		.references(() => teamTable.id),
-	userId: integer('user_id')
-		.notNull()
-		.references(() => userTable.id),
-	role: text('role').notNull().default(TeamRole.Member),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow()
-});
+export const teamMemberTable = pgTable(
+	'team_members',
+	{
+		teamId: integer('team_id')
+			.notNull()
+			.references(() => teamTable.id, { onDelete: 'cascade' }),
+		userId: integer('user_id')
+			.notNull()
+			.references(() => userTable.id, { onDelete: 'cascade' }),
+		role: text('role').notNull().default(TeamRole.Member),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow()
+	},
+	(table) => ({
+		pk: primaryKey({ columns: [table.teamId, table.userId] })
+	})
+);
 
 export const sessionTable = pgTable('sessions', {
 	id: text('id').primaryKey(),

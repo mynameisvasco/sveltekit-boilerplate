@@ -43,6 +43,27 @@
       "when": 1720888875577,
       "tag": "0005_married_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1721208986367,
+      "tag": "0006_faithful_kree",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1721213157912,
+      "tag": "0007_reflective_tomas",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1721213388939,
+      "tag": "0008_outgoing_junta",
+      "breakpoints": true
     }
   ]
 }

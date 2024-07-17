@@ -1,0 +1,1 @@
+ALTER TABLE "oauth_connections" RENAME COLUMN "username" TO "email";

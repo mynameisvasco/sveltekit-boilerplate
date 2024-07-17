@@ -9,7 +9,8 @@ import {
 	teamTable,
 	verificationCodesTable,
 	sessionTable,
-	teamMemberTable
+	teamMemberTable,
+	oauthConnectionsTable
 } from '../database/schema';
 import { TeamRole } from '../teams/roles';
 
@@ -195,6 +196,62 @@ class AuthRepository {
 			await trx.delete(sessionTable).where(eq(sessionTable.userId, id));
 			await trx.delete(userTable).where(eq(userTable.id, id));
 		});
+	}
+
+	async createOAuthConnection(
+		provider: string,
+		profile: { avatarUrl: string; email: string; providerUserId: string; name: string }
+	) {
+		const user = await db.query.userTable.findFirst({
+			columns: { id: true },
+			where: eq(userTable.email, profile.email)
+		});
+
+		if (user) {
+			return db
+				.insert(oauthConnectionsTable)
+				.values({
+					provider,
+					providerUserId: profile.providerUserId,
+					userId: user.id,
+					email: profile.email
+				})
+				.returning();
+		} else {
+			return db.transaction(async (trx) => {
+				const [{ id: teamId }] = await trx
+					.insert(teamTable)
+					.values({ name: `${profile.name}'s Team` })
+					.returning();
+
+				const [user] = await trx
+					.insert(userTable)
+					.values({
+						email: profile.email,
+						password: generateIdFromEntropySize(10),
+						fullName: profile.name,
+						activeTeamId: teamId,
+						isVerified: true
+					})
+					.returning();
+
+				await trx.insert(teamMemberTable).values({
+					teamId: teamId,
+					userId: user.id,
+					role: TeamRole.Admin
+				});
+
+				return trx
+					.insert(oauthConnectionsTable)
+					.values({
+						provider,
+						providerUserId: profile.providerUserId,
+						email: profile.email,
+						userId: user.id
+					})
+					.returning();
+			});
+		}
 	}
 }
 

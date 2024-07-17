@@ -2,6 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { enhance } from '$app/forms';
 </script>
 
 <DropdownMenu.Root>
@@ -19,6 +20,10 @@
 		<DropdownMenu.Item>Settings</DropdownMenu.Item>
 		<DropdownMenu.Item>Support</DropdownMenu.Item>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item>Logout</DropdownMenu.Item>
+		<DropdownMenu.Item>
+			<form action="/auth/logout" method="post" use:enhance>
+				<button type="submit"> Logout </button>
+			</form>
+		</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

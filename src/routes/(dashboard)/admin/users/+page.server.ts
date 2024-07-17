@@ -1,7 +1,6 @@
 import { registerDto } from '$lib/server/auth/dtos.js';
 import { authRepository } from '$lib/server/auth/repository';
-import { Role } from '$lib/server/auth/roles.js';
-import { error, fail, redirect, type RequestEvent } from '@sveltejs/kit';
+import { error, fail, type RequestEvent } from '@sveltejs/kit';
 
 const create = async (event: RequestEvent) => {
 	const { data, error } = await registerDto.safeParseAsync(event.locals.body);

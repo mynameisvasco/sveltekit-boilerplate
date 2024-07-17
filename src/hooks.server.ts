@@ -1,7 +1,5 @@
 import { lucia } from '$lib/server/auth/adapter';
-import { authRepository } from '$lib/server/auth/repository';
 import { Role } from '$lib/server/auth/roles';
-import { sendEmailWorker } from '$lib/server/email/workers';
 import { teamRepository } from '$lib/server/teams/repository';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -36,11 +34,11 @@ const authHandler: Handle = async ({ event, resolve }) => {
 			});
 		}
 
-		event.locals.team = (await teamRepository.findTeamById(user!.activeTeamId)) ?? null;
-		event.locals.teamMembership =
-			(await teamRepository.findTeamMemberByUserId(user!.activeTeamId, user!.id)) ?? null;
-		event.locals.user = user;
-		event.locals.session = session;
+		if (user) {
+			event.locals.user = user;
+			event.locals.session = session;
+			event.locals.team = (await teamRepository.findTeamById(user.activeTeamId)) ?? null;
+		}
 	}
 
 	if (sessionId && event.url.pathname !== '/auth/verify-email' && !event.locals.user?.isVerified) {

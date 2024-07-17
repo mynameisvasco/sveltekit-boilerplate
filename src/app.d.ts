@@ -9,7 +9,6 @@ declare global {
 			user: User | null;
 			session: Session | null;
 			team: { id: number; name: string } | null;
-			teamMembership: { role: string } | null;
 			body?: any | null | undefined;
 		}
 		// interface PageData {}

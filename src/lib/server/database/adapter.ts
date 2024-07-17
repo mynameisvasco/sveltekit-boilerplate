@@ -1,5 +1,6 @@
 import { SECRET_DATABASE_URL } from '$env/static/private';
 import {
+	oauthConnectionsTable,
 	sessionTable,
 	teamMemberRelations,
 	teamMemberTable,
@@ -19,6 +20,7 @@ export const db = drizzle(client, {
 		verificationCodesTable,
 		teamTable,
 		teamMemberTable,
-		teamMemberRelations
+		teamMemberRelations,
+		oauthConnectionsTable
 	}
 });
