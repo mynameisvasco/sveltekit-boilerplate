@@ -207,8 +207,19 @@ class AuthRepository {
 			where: eq(userTable.email, profile.email)
 		});
 
+		const existingConnection = await db.query.oauthConnectionsTable.findFirst({
+			where: and(
+				eq(oauthConnectionsTable.provider, provider),
+				eq(oauthConnectionsTable.providerUserId, profile.providerUserId)
+			)
+		});
+
 		if (user) {
-			return db
+			if (existingConnection) {
+				return existingConnection;
+			}
+
+			const [connection] = await db
 				.insert(oauthConnectionsTable)
 				.values({
 					provider,
@@ -217,41 +228,45 @@ class AuthRepository {
 					email: profile.email
 				})
 				.returning();
-		} else {
-			return db.transaction(async (trx) => {
-				const [{ id: teamId }] = await trx
-					.insert(teamTable)
-					.values({ name: `${profile.name}'s Team` })
-					.returning();
 
-				const [user] = await trx
-					.insert(userTable)
-					.values({
-						email: profile.email,
-						password: generateIdFromEntropySize(10),
-						fullName: profile.name,
-						activeTeamId: teamId,
-						isVerified: true
-					})
-					.returning();
-
-				await trx.insert(teamMemberTable).values({
-					teamId: teamId,
-					userId: user.id,
-					role: TeamRole.Admin
-				});
-
-				return trx
-					.insert(oauthConnectionsTable)
-					.values({
-						provider,
-						providerUserId: profile.providerUserId,
-						email: profile.email,
-						userId: user.id
-					})
-					.returning();
-			});
+			return connection;
 		}
+
+		return db.transaction(async (trx) => {
+			const [{ id: teamId }] = await trx
+				.insert(teamTable)
+				.values({ name: `${profile.name}'s Team` })
+				.returning();
+
+			const [user] = await trx
+				.insert(userTable)
+				.values({
+					email: profile.email,
+					password: generateIdFromEntropySize(10),
+					fullName: profile.name,
+					activeTeamId: teamId,
+					isVerified: true
+				})
+				.returning();
+
+			await trx.insert(teamMemberTable).values({
+				teamId: teamId,
+				userId: user.id,
+				role: TeamRole.Admin
+			});
+
+			const [connection] = await trx
+				.insert(oauthConnectionsTable)
+				.values({
+					provider,
+					providerUserId: profile.providerUserId,
+					email: profile.email,
+					userId: user.id
+				})
+				.returning();
+
+			return connection;
+		});
 	}
 }
 

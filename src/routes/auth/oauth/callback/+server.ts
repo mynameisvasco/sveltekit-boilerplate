@@ -1,7 +1,7 @@
 import { lucia } from '$lib/server/auth/adapter.js';
 import { authRepository } from '$lib/server/auth/repository.js';
 import { oauthService } from '$lib/server/auth/services/oauth-service.js';
-import { error, json, redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 export const GET = async (event) => {
 	const code = event.url.searchParams.get('code');
@@ -25,7 +25,7 @@ export const GET = async (event) => {
 		return error(404);
 	}
 
-	const [oauthConnection] = await authRepository.createOAuthConnection(provider, profile);
+	const oauthConnection = await authRepository.createOAuthConnection(provider, profile);
 
 	if (!oauthConnection) {
 		console.error('Failed to create OAuth connection');
